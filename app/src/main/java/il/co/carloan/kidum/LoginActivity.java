@@ -28,6 +28,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -280,7 +281,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
     }
-
+    public void finish(){
+        Toast.makeText(LoginActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+    }
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
