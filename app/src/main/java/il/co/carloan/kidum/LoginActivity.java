@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,8 +32,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.*;
+import javax.net.ssl.HttpsURLConnection;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -305,10 +312,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 // Simulate network access.
-                // TODO: attempt authentication against a network service.
+                String httpsURL = "https://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
+                URL url = new URL(httpsURL);
+                HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+                InputStream ins = con.getInputStream();
+                InputStreamReader isr = new InputStreamReader(ins);
+                BufferedReader in = new BufferedReader(isr);
+
+                String inputLine;
+
+                while ((inputLine = in.readLine()) != null)
+                {
+                    Log.d("https",inputLine);
+                }
+
+                in.close();
 
                 Thread.sleep(2000);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
+                Log.e("EXEPTION", e.getMessage());
                 return false;
             }
             return true;
