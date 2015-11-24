@@ -328,7 +328,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 in.close();
 
-                Thread.sleep(2000);
             } catch (Exception e) {
                 Log.e("EXEPTION", e.getMessage());
                 return false;
