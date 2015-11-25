@@ -290,8 +290,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
     public void finish(){
-        //Intent intent = new Intent(this, MainActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -322,7 +322,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 while ((inputLine = in.readLine()) != null)
                 {
-                    Log.d("https",inputLine);
+                        return true;
                 }
 
                 in.close();
@@ -338,7 +338,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     String inputLine;
 
                     while ((inputLine = in.readLine()) != null) {
-                        Log.d("https", inputLine);
+                            return true;
                     }
 
                     in.close();
@@ -349,7 +349,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Log.e("EXCEPTION", e.getClass().getName());
                 return false;
             }
-            return true;
+            return false;
         }
 
         @Override
