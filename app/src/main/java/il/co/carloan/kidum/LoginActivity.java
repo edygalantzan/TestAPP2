@@ -290,8 +290,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
     public void finish(){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        //Intent intent = new Intent(this, MainActivity.class);
+        //startActivity(intent);
     }
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -311,7 +311,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
 
             try {
-                // Simulate network access.
                 String httpsURL = "https://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
                 URL url = new URL(httpsURL);
                 HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
@@ -327,11 +326,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
 
                 in.close();
-            } catch (Exception e) {
-                Log.e("EXCEPTION", e.getMessage());
-                //for now it will continue if there is an exception.
-                //TODO: remove comment below.
-                //return false;
+            }catch (javax.net.ssl.SSLHandshakeException e) {
+                try {
+                    String httpsURL = "http://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
+                    URL url = new URL(httpsURL);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    InputStream ins = con.getInputStream();
+                    InputStreamReader isr = new InputStreamReader(ins);
+                    BufferedReader in = new BufferedReader(isr);
+
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        Log.d("https", inputLine);
+                    }
+
+                    in.close();
+                } catch (Exception e2){
+                    Log.e("EXCEPTION", e2.getMessage());
+                }
+            } catch (Exception e){
+                Log.e("EXCEPTION", e.getClass().getName());
+                return false;
             }
             return true;
         }
