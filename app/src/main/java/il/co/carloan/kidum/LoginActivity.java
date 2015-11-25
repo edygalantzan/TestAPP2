@@ -327,10 +327,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
 
                 in.close();
-
             } catch (Exception e) {
-                Log.e("EXEPTION", e.getMessage());
-                return false;
+                Log.e("EXCEPTION", e.getMessage());
+                //for now it will continue if there is an exception.
+                //TODO: remove comment below.
+                //return false;
             }
             return true;
         }
