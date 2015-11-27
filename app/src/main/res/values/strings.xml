@@ -13,6 +13,14 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="Camera">Camera</string>
+    <string name="PDI">PDI</string>
+    <string name="camera_explenision">This app needs an camera permission!</string>
+    <string name="camera_ok">OK</string>
+    <string name="prompt_tz">please enter tz</string>
+    <string name="prompt_tz2">please enter second ID</string>
+    <string name="action_postBDI">post BDI</string>
+    <string name="sign_out">Sign Out</string>
 
     <!-- Strings related to menu -->
 </resources>
