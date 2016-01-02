@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -46,16 +47,28 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
         agree = (CheckBox) findViewById(R.id.agree);
         mProgressView = findViewById(R.id.photoSend);
         mLoginFormView = findViewById(R.id.login_form);
+        agree.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    agree.setError(null);
+                    agree.clearFocus();
+                }
+            }
+        });
     }
     public void showDatePickerDialog(View v) {
         agree.setError(null);
         mtz1.setError(null);
-        if(agree.isChecked()){
+        if(mtz1.getText().toString().matches("")){
+            mtz1.setError("שדה זה חובה");
+            mtz1.requestFocus();
+        }else if(agree.isChecked()){
             //DialogFragment newFragment = new DatePickerFragment();
             //newFragment.show(getFragmentManager(), "datePicker");
             timeSetNoCalendar();
         }else{
             agree.setError(getString(R.string.checkbox_error));
+            agree.requestFocus();
         }
     }
     @Override

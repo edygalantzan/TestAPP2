@@ -125,34 +125,20 @@ public class LoginActivity extends AppCompatActivity{
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
                 if (extras.containsKey("Toast")){
-                    showProgress(true);
                     Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                     Toast.makeText(this, extras.getString("Toast"), Toast.LENGTH_LONG).show();
                 }else{
-                    showProgress(true);
                     mEmailView.setText(settings.getString("Username", ""));
                     mPasswordView.setText(settings.getString("Password", ""));
                     Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                 }
             }else{
-                showProgress(true);
                 mEmailView.setText(settings.getString("Username", ""));
                 mPasswordView.setText(settings.getString("Password", ""));
                 attemptLogin();
             }
         }else{
-            showProgress(true);
-            Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground, new com.squareup.picasso.Callback() {
-                @Override
-                public void onSuccess() {
-                    showProgress(false);
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
+            Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
         }
     }
 
