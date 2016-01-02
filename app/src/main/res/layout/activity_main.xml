@@ -3,36 +3,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:background="#def3f5"
     tools:context="il.co.carloan.kidum.MainActivity">
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Camera"
-        android:id="@+id/buttonCam"
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/imageViewMain"
+        android:scaleType="fitStart"
+        android:contentDescription="background"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="cam"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/PDI"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:background="#00000000"
+        android:id="@+id/buttonCam"
+        android:onClick="cam"
+        android:layout_marginTop="65dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="100dp"
+        android:layout_marginStart="82dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="100dp"
+        android:layout_marginEnd="87dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="#00000000"
         android:id="@+id/buttonPDI"
+        android:onClick="pdi"
+        android:layout_marginTop="50dp"
         android:layout_below="@+id/buttonCam"
-        android:layout_centerHorizontal="true"
-        android:onClick="pdi"/>
+        android:layout_alignLeft="@+id/buttonCam"
+        android:layout_alignStart="@+id/buttonCam"
+        android:layout_alignRight="@+id/buttonCam"
+        android:layout_alignEnd="@+id/buttonCam" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sign_out"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#00000000"
         android:id="@+id/signOut"
+        android:onClick="signOut"
         android:layout_below="@+id/buttonPDI"
-        android:layout_centerHorizontal="true"
-        android:onClick="signOut"/>
+        android:layout_alignLeft="@+id/buttonPDI"
+        android:layout_alignStart="@+id/buttonPDI"
+        android:layout_marginTop="45dp"
+        android:layout_alignRight="@+id/buttonPDI"
+        android:layout_alignEnd="@+id/buttonPDI" />
+
 </RelativeLayout>

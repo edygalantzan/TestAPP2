@@ -1,26 +1,42 @@
 <resources>
-    <string name="app_name">Kidum</string>
+    <string name="app_name">קידום</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
-    <string name="Camera">Camera</string>
-    <string name="PDI">PDI</string>
-    <string name="camera_explenision">This app needs an camera permission!</string>
-    <string name="camera_ok">OK</string>
-    <string name="prompt_tz">please enter tz</string>
-    <string name="prompt_tz2">please enter second ID</string>
-    <string name="action_postBDI">post BDI</string>
-    <string name="sign_out">Sign Out</string>
+    <string name="prompt_email">דואר אלקטרוני</string>
+    <string name="prompt_password">סיסמא</string>
+    <string name="action_sign_in">התחבר</string>
+    <string name="action_sign_in_short">התחבר</string>
+    <string name="error_invalid_email">דואר אלקטרוני שגוי</string>
+    <string name="error_incorrect_password">דואר אלקטרוני או סיסמא שגויים</string>
+    <string name="error_field_required">שדה חובה</string>
 
-    <!-- Strings related to menu -->
+    <!-- Camera -->
+    <string name="camera_explenision">אפליקציה זאת דורשת הרשאת מצלמה</string>
+    <string name="camera_ok">נסה שוב</string>
+    <string name="camera_sent">המסמך נשלח בהצלחה</string>
+
+    <!-- BDI -->
+    <string name="prompt_tz">הכנס מספר תעודת זהות</string>
+    <string name="action_postBDI">בדוק תעודת זהות</string>
+    <string name="checkbox_bdi">אישור חתימה על טופס ויתור סודיות</string>
+    <string name="checkbox_error">אנא אשר חתימת טופס ויתור סודיות</string>
+
+    <!-- Main -->
+    <string name="PDI">בדוק תעודת זהות</string>
+    <string name="Camera">שלח מסמך</string>
+    <string name="sign_out">התנתק</string>
+
+    <!-- errors and massages -->
+    <string name="try_again">יש בעיה בתקשורת עם השרת. פנה לקידום</string>
+    <string name="id">אנא הכנס מספר תעודת זהות תיקנית</string>
+    <string name="exc">בדוק את חיבור האינטרנט שלך</string>
+    <string name="err">בעיה במערכת</string>
+    <string name="black">מספר תהודת זהות זהה נמצא ברשימה השחורה</string>
+    <string name="sign">אנא התחבר שוב למערכת</string>
+    <string name="men">צור קשר עם קידום בשביל בדיקה ידנית</string>
+
+    <string name="successful_bdi">לקוח זה יכול לקבל הלוואה</string>
+    <string name="camera_cansle">Cancled</string>
+    <string name="login_title">התחבר</string>
+
 </resources>

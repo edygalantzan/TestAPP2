@@ -7,9 +7,6 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-/**
- * Created by sean1 on 27/11/2015.
- */
 public class CameraPermissionDialog extends DialogFragment {
     public interface CameraPermissionDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);

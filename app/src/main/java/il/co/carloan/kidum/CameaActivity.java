@@ -10,8 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -23,18 +21,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -87,10 +79,9 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
                 }
                 sendPhoto(photoUri);
             } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
+                cansle();
             } else {
-                Toast.makeText(this, "Callout for image capture failed!",
-                        Toast.LENGTH_LONG).show();
+                cansle();
             }
         }
     }
@@ -99,7 +90,7 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
                 Environment.DIRECTORY_PICTURES), getPackageName());
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
-                Log.e(TAG, "Failed to create storage directory.");
+                //Log.e(TAG, "Failed to create storage directory.");
                 return null;
             }
         }
@@ -111,8 +102,8 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
         File imageFile = new File(photoUri.getPath());
         if (imageFile.exists()){
             showProgress(true);
-            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-            sendTask = new PhotoSendTask(bitmap,mEmail,mPassword,this);
+            sendTask = new PhotoSendTask(Uri.parse(imageFile.getAbsolutePath()),this);
+            sendTask.execute();
         }
     }
 
@@ -160,11 +151,7 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
                     // functionality that depends on this permission.
                     showDialog();
                 }
-                return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -205,91 +192,56 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
         }
     }
 
-
+    public void finish(){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("Toast",getString(R.string.camera_sent));
+        startActivity(intent);
+    }
+    public void cansle(){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("Toast",getString(R.string.camera_cansle));
+        startActivity(intent);
+    }
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
     public class PhotoSendTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final Bitmap bitmap;
-        String mEmail;
-        String mPassword;
+        private final Uri uri;
         AppCompatActivity act;
 
-        PhotoSendTask(Bitmap map, String email, String pass,AppCompatActivity activity) {
-            bitmap = map;
-            mEmail=email;
-            mPassword=pass;
+        PhotoSendTask(Uri image, AppCompatActivity activity) {
+            uri = image;
             act=activity;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            /**
+             * Show share dialog BOTH image and text
+             */
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            //Target whatsapp:
+            shareIntent.setPackage("com.whatsapp");
+            //Add text and then Image URI
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "I am using the new Kidum app!");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            shareIntent.setType("image/jpeg");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             try {
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                //TODO: Change URL
-                String httpsURL = "http://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
-                URL url = new URL(httpsURL);
-                HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-                //add reuqest header
-                con.setRequestMethod("POST");
-                con.setRequestProperty("User-Agent", "Mozilla/5.0");
-                con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-                String urlParameters = "username="+ this.mEmail + "&password=" + this.mPassword+"image="+byteArray;
-                // Send post request
-                con.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                wr.writeBytes(urlParameters);
-                wr.flush();
-                wr.close();
-                return true;
-            }catch (javax.net.ssl.SSLHandshakeException e) {
-                try {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] byteArray = stream.toByteArray();
-                    //TODO: Change URL
-                    String httpsURL = "http://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
-                    URL url = new URL(httpsURL);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    //add reuqest header
-                    con.setRequestMethod("POST");
-                    con.setRequestProperty("User-Agent", "Mozilla/5.0");
-                    con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-                    String urlParameters = "username="+ this.mEmail + "&password=" + this.mPassword+"image="+byteArray;
-                    // Send post request
-                    con.setDoOutput(true);
-                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                    wr.writeBytes(urlParameters);
-                    wr.flush();
-                    wr.close();
-                    return true;
-                } catch (Exception e2){
-                    Log.e("EXCEPTION", e2.getMessage());
-                }
-            } catch (Exception e){
-                Log.e("EXCEPTION", e.getClass().getName());
+                startActivity(shareIntent);
+            } catch (android.content.ActivityNotFoundException ex) {
                 return false;
             }
-            return false;
+            return true;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            sendTask = null;
-
-            if (success) {
-                finish();
-            }else{
-                Toast.makeText(act, "Something went wrong while sending the image. Please check your internet connection!",
-                        Toast.LENGTH_LONG).show();
-            }
+            finish();
         }
 
         @Override
