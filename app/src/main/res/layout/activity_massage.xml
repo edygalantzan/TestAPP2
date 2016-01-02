@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="il.co.carloan.kidum.MassageActivity"
+    android:background="#def3f5">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="91dp"
+        android:id="@+id/imageView"
+        android:src="@drawable/top"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-3dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Text 1"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Long Long Text 2"
+        android:id="@+id/textView2"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageIcon"
+        android:src="@drawable/icon_bad"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:elevation="6dp" />
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="חזור"
+        android:id="@+id/massage_button"
+        android:layout_below="@+id/imageIcon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:paddingTop="0dp"
+        android:textSize="25sp"
+        android:elevation="6dp"
+        android:onClick="finish" />
+
+</RelativeLayout>

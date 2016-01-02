@@ -37,19 +37,11 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
     PhotoSendTask sendTask;
     private View mProgressView;
     private View mLoginFormView;
-    Toolbar t;
-    private void toolbar(){
-        t = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(t);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdi);
-        toolbar();
         mtz1 = (EditText) findViewById(R.id.tz1);
         agree = (CheckBox) findViewById(R.id.agree);
         mProgressView = findViewById(R.id.photoSend);

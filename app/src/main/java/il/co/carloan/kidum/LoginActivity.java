@@ -69,12 +69,29 @@ public class LoginActivity extends AppCompatActivity{
 
         return cm.getActiveNetworkInfo() != null;
     }
+
+    public void internet(){
+        Intent intent = new Intent(this,MassageActivity.class);
+        intent.putExtra("text1","בעית חיבור");
+        intent.putExtra("text2","בדוק את חיבור האינטרנט שלך");
+        intent.putExtra("icon",R.drawable.icon_network);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!isNetworkConnected()){
+            internet();
+        }else{
+            attemptLogin();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         if (!isNetworkConnected()){
-            //display internet problem screen
+            internet();
         }
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
@@ -109,41 +126,13 @@ public class LoginActivity extends AppCompatActivity{
             if (extras != null) {
                 if (extras.containsKey("Toast")){
                     showProgress(true);
-                    Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            showProgress(false);
-                        }
-
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
+                    Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                     Toast.makeText(this, extras.getString("Toast"), Toast.LENGTH_LONG).show();
-                }
-                else {
-                    if (extras.getBoolean("Auto")){
-                        showProgress(true);
-                        mEmailView.setText(settings.getString("Username", ""));
-                        mPasswordView.setText(settings.getString("Password", ""));
-                        attemptLogin();
-                    }else{
-                        showProgress(true);
-                        mEmailView.setText(settings.getString("Username", ""));
-                        mPasswordView.setText(settings.getString("Password", ""));
-                        Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                showProgress(false);
-                            }
-
-                            @Override
-                            public void onError() {
-
-                            }
-                        });
-                    }
+                }else{
+                    showProgress(true);
+                    mEmailView.setText(settings.getString("Username", ""));
+                    mPasswordView.setText(settings.getString("Password", ""));
+                    Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                 }
             }else{
                 showProgress(true);
