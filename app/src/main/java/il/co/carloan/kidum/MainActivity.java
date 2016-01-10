@@ -22,27 +22,29 @@ public class MainActivity extends AppCompatActivity {
 
         return cm.getActiveNetworkInfo() != null;
     }
-    public void internet(){
-        Intent intent = new Intent(this,MassageActivity.class);
-        intent.putExtra("text1","בעית חיבור");
-        intent.putExtra("text2","בדוק את חיבור האינטרנט שלך");
-        intent.putExtra("icon",R.drawable.icon_network);
+
+    public void internet() {
+        Intent intent = new Intent(this, MassageActivity.class);
+        intent.putExtra("text1", "בעית חיבור");
+        intent.putExtra("text2", "בדוק את חיבור האינטרנט שלך");
+        intent.putExtra("icon", R.drawable.icon_network);
         startActivityForResult(intent, 0);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!isNetworkConnected()){
+        if (!isNetworkConnected()) {
             internet();
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (!isNetworkConnected()){
+        if (!isNetworkConnected()) {
             internet();
         }
         ImageView mBackground = (ImageView) findViewById(R.id.imageViewMain);
@@ -52,14 +54,17 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, extras.getString("Toast"), Toast.LENGTH_LONG).show();
         }
     }
+
     public void cam(View v) {
         Intent intent = new Intent(this, CameaActivity.class);
         startActivity(intent);
     }
+
     public void pdi(View v) {
         Intent intent = new Intent(this, PDIActivity.class);
         startActivity(intent);
     }
+
     public void signOut(View v) {
         SharedPreferences mySPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = mySPrefs.edit();
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         editor.remove("Password");
         editor.apply();
         Intent intent = new Intent(this, LoginActivity.class);
-        intent.putExtra("Auto",false);
+        intent.putExtra("Auto", false);
         startActivity(intent);
     }
 }

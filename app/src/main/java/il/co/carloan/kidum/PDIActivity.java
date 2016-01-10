@@ -61,6 +61,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdi);
@@ -80,6 +81,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
             }
         });
     }
+
     public void showDatePickerDialog(View v) {
         agree.setError(null);
         mtz1.setError(null);
@@ -111,6 +113,10 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
         String mPassword = settings.getString("Password", "");
         sendTask = new PhotoSendTask(mtz1.getText().toString(),mEmail,mPassword,this);
         sendTask.execute();
+    }
+    @Override
+    public void onBackPressed() {
+        sendTask=null;
     }
     /**
      * Shows the progress UI and hides the login form.
@@ -169,6 +175,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
 
         @Override
         protected String doInBackground(Void... params) {
+            Log.d("BDI","test");
             long startTime = System.currentTimeMillis();
             long elapsedTime;
             do{
@@ -184,14 +191,14 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
                     while ((inputLine = in.readLine()) != null){
                         list.add(inputLine);
                     }
+                    in.close();
                     String code=findcode(list);
                     if(!code.equals("try_again")){
                         return code;
                     }
-                    in.close();
                 }catch (javax.net.ssl.SSLHandshakeException e) {
                     try {
-                        String httpsURL = "http://app.carloan.co.il/dynamic/android/test_bdi/?"+"username="+ this.mEmail + "&password=" + this.mPassword+"&id="+id+"&year=";
+                        String httpsURL = "http://app.carloan.co.il/dynamic/android/test_bdi/?username="+ this.mEmail + "&password=" + this.mPassword+"&id="+id;
                         URL url = new URL(httpsURL);
                         HttpURLConnection con = (HttpURLConnection) url.openConnection();
                         InputStream ins = con.getInputStream();
@@ -203,17 +210,17 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
                         while ((inputLine = in.readLine()) != null){
                             list.add(inputLine);
                         }
+                        in.close();
                         String code=findcode(list);
                         if(!code.equals("try_again")){
                             return code;
                         }
-                        in.close();
                     } catch (Exception e2){
-                        //Log.e("EXCEPTION", e2.getMessage());
+                        Log.e("EXCEPTION", e2.getMessage());
                         return "EXCEPTION";
                     }
                 } catch (Exception e){
-                    //Log.e("EXCEPTION", e.getMessage());
+                    Log.e("EXCEPTION", e.getMessage());
                     return "EXCEPTION";
                 }
                 try {
@@ -230,7 +237,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
         @Override
         protected void onPostExecute(final String response) {
             sendTask = null;
-            //Log.d("BDI", response);
+            Log.d("BDI", response);
             switch (response) {
                 case "try_again": {
                     Intent intent = new Intent(act, MainActivity.class);
@@ -298,19 +305,19 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
         if(list.contains("try_again")){
             return "try_again";
         }else if(list.contains("manual")){
-            return "try_again";
+            return "manual";
         }else if(list.contains("test_ok")){
-            return "try_again";
+            return "test_ok";
         }else if(list.contains("blacklist")){
-            return "try_again";
+            return "blacklist";
         }else if(list.contains("id_not_valid")){
-            return "try_again";
+            return "id_not_valid";
         }else if(list.contains("id_error")){
-            return "try_again";
+            return "id_error";
         }else if(list.contains("error_x")){
-            return "try_again";
+            return "error_x";
         }else if(list.contains("error_y")){
-            return "try_again";
+            return "error_y";
         }
         return "";
     }

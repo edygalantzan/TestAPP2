@@ -38,5 +38,6 @@
     <string name="successful_bdi">לקוח זה יכול לקבל הלוואה</string>
     <string name="camera_cansle">Cancled</string>
     <string name="login_title">התחבר</string>
+    <string name="wait">אנא המתן...</string>
 
 </resources>

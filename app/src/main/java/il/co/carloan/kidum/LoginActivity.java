@@ -79,6 +79,11 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onBackPressed() {
+        mAuthTask=null;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (!isNetworkConnected()){
             internet();
