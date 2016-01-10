@@ -1,7 +1,9 @@
 package il.co.carloan.kidum;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,11 +17,34 @@ import com.squareup.picasso.Picasso;
 
 
 public class MainActivity extends AppCompatActivity {
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
+    public void internet(){
+        Intent intent = new Intent(this,MassageActivity.class);
+        intent.putExtra("text1","בעית חיבור");
+        intent.putExtra("text2","בדוק את חיבור האינטרנט שלך");
+        intent.putExtra("icon",R.drawable.icon_network);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!isNetworkConnected()){
+            internet();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (!isNetworkConnected()){
+            internet();
+        }
         ImageView mBackground = (ImageView) findViewById(R.id.imageViewMain);
         Picasso.with(this).load("http://app.carloan.co.il/android/main.jpg").into(mBackground);
         Bundle extras = getIntent().getExtras();

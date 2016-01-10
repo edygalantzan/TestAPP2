@@ -4,8 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -38,11 +40,33 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
     PhotoSendTask sendTask;
     private View mProgressView;
     private View mLoginFormView;
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
+    public void internet(){
+        Intent intent = new Intent(this,MassageActivity.class);
+        intent.putExtra("text1","בעית חיבור");
+        intent.putExtra("text2","בדוק את חיבור האינטרנט שלך");
+        intent.putExtra("icon",R.drawable.icon_network);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!isNetworkConnected()){
+            internet();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdi);
+        if (!isNetworkConnected()){
+            internet();
+        }
         mtz1 = (EditText) findViewById(R.id.tz1);
         agree = (CheckBox) findViewById(R.id.agree);
         mProgressView = findViewById(R.id.photoSend);

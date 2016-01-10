@@ -4,6 +4,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,14 +27,13 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import javax.net.ssl.HttpsURLConnection;
-
 public class CameaActivity extends AppCompatActivity implements CameraPermissionDialog.CameraPermissionDialogListener{
 
     private PhotoSendTask sendTask;
@@ -44,21 +44,44 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
 
     private View mProgressView;
 
-    private String mEmail;
-    private String mPassword;
     private void dispatchTakePictureIntent() {
         Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         fileUri = Uri.fromFile(getOutputPhotoFile());
         i.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         startActivityForResult(i, CAPTURE_IMAGE_ACTIVITY_REQ );
     }
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camea);
-        SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        mEmail = settings.getString("Username", "");
-        mPassword = settings.getString("Password", "");
+        verifyStoragePermissions(this);
         cameraPermission();
         mProgressView = findViewById(R.id.photoSend);
     }
@@ -99,12 +122,17 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
                 + timeStamp + ".jpg");
     }
     private void sendPhoto(Uri photoUri) {
-        File imageFile = new File(photoUri.getPath());
-        if (imageFile.exists()){
-            showProgress(true);
-            sendTask = new PhotoSendTask(Uri.parse(imageFile.getAbsolutePath()),this);
-            sendTask.execute();
-        }
+        try {
+            File imageFile = new File(photoUri.getPath());
+            if (imageFile.exists()) {
+                showProgress(true);
+                SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+                String mEmail = settings.getString("Username", "");
+                String mPassword = settings.getString("Password", "");
+                sendTask = new PhotoSendTask("http://app.carloan.co.il/dynamic/android/upload_img", "test", "descrption", new FileInputStream(imageFile),mEmail,mPassword);
+                sendTask.execute();
+            }
+        }catch (Exception e){Log.e("CameraWEB",e.getMessage());}
     }
 
 
@@ -208,32 +236,116 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
      */
     public class PhotoSendTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final Uri uri;
-        AppCompatActivity act;
+        URL connectURL;
+        String Title;
+        String username;
+        String password;
+        String Description;
+        byte[ ] dataToServer;
+        FileInputStream fileInputStream = null;
 
-        PhotoSendTask(Uri image, AppCompatActivity activity) {
-            uri = image;
-            act=activity;
+        PhotoSendTask(String urlString, String vTitle, String vDesc, FileInputStream fStream,String username1,String password1) {
+            username=username1;
+            password=password1;
+            fileInputStream=fStream;
+            try{
+                connectURL = new URL(urlString);
+                Title= vTitle;
+                Description = vDesc;
+            }catch(Exception ex){
+                Log.i("HttpFileUpload","URL Malformatted");
+            }
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            /**
-             * Show share dialog BOTH image and text
-             */
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            //Target whatsapp:
-            shareIntent.setPackage("com.whatsapp");
-            //Add text and then Image URI
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "I am using the new Kidum app!");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            shareIntent.setType("image/jpeg");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        protected Boolean doInBackground(Void... param) {
+            String lineEnd = "\r\n";
+            String twoHyphens = "--";
+            String boundary = "*****";
+            String Tag = "CameraNET";
+             try{
+                Log.e(Tag,"Starting Http File Sending to URL");
 
-            try {
-                startActivity(shareIntent);
-            } catch (android.content.ActivityNotFoundException ex) {
+                // Open a HTTP connection to the URL
+                HttpURLConnection conn = (HttpURLConnection)connectURL.openConnection();
+
+                // Allow Inputs
+                conn.setDoInput(true);
+
+                // Allow Outputs
+                conn.setDoOutput(true);
+
+                // Don't use a cached copy.
+                conn.setUseCaches(false);
+
+                // Use a post method.
+                conn.setRequestMethod("POST");
+
+                conn.setRequestProperty("Connection", "Keep-Alive");
+
+                conn.setRequestProperty("Content-Type", "multipart/form-data;");
+
+                DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+                dos.writeBytes("username="+username+"&password="+password);
+                 dos.flush();
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"title\""+ lineEnd);
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(Title);
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                dos.writeBytes("Content-Disposition: form-data; name=\"description\""+ lineEnd);
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(Description);
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + System.currentTimeMillis()/1000 +".JPEG\"" + lineEnd);
+                dos.writeBytes(lineEnd);
+
+                Log.e(Tag,"Headers are written");
+
+                // create a buffer of maximum size
+                int bytesAvailable = fileInputStream.available();
+
+                int maxBufferSize = 1024;
+                int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                byte[ ] buffer = new byte[bufferSize];
+
+                // read file and write it into form...
+                int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0)
+                {
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable,maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0,bufferSize);
+                }
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // close streams
+                fileInputStream.close();
+
+                dos.flush();
+
+                Log.e(Tag,"File Sent, Response: "+String.valueOf(conn.getResponseCode()));
+
+                InputStream is = conn.getInputStream();
+
+                // retrieve the response from server
+                int ch;
+
+                StringBuffer b =new StringBuffer();
+                while( ( ch = is.read() ) != -1 ){ b.append( (char)ch ); }
+                String s=b.toString();
+                Log.i("Response",s);
+                dos.close();
+            }
+            catch(Exception e){
+                Log.e(TAG,e.getMessage());
                 return false;
             }
             return true;
