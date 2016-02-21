@@ -117,6 +117,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
     @Override
     public void onBackPressed() {
         sendTask=null;
+        finish();
     }
     /**
      * Shows the progress UI and hides the login form.
@@ -175,7 +176,7 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
 
         @Override
         protected String doInBackground(Void... params) {
-            Log.d("BDI","test");
+            //Log.d("BDI","test");
             long startTime = System.currentTimeMillis();
             long elapsedTime;
             do{
@@ -212,42 +213,40 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
                         }
                         in.close();
                         String code=findcode(list);
-                        if(!code.equals("try_again")){
+                        boolean i="try_again".equals(code);
+                        if(!i){
                             return code;
                         }
                     } catch (Exception e2){
-                        Log.e("EXCEPTION", e2.getMessage());
+                        //Log.e("EXCEPTION", e2.getMessage());
                         return "EXCEPTION";
                     }
                 } catch (Exception e){
-                    Log.e("EXCEPTION", e.getMessage());
+                    //Log.e("EXCEPTION", e.getMessage());
                     return "EXCEPTION";
                 }
                 try {
-                    Thread.sleep(15*1000);
+                    Thread.sleep(10*1000);
                 } catch (InterruptedException e) {
-                    Log.e("EXCEPTION", e.getMessage());
+                    //Log.e("EXCEPTION", e.getMessage());
                     return null;
                 }
                 elapsedTime = (new Date()).getTime() - startTime;
-            }while (elapsedTime<5*60*1000);
-            return "try_again";
+            }while (elapsedTime<1*60*1000);
+            return "try_again1";
         }
 
         @Override
         protected void onPostExecute(final String response) {
             sendTask = null;
-            Log.d("BDI", response);
+            //Log.d("BDI", response);
             switch (response) {
-                case "try_again": {
-                    Intent intent = new Intent(act, MainActivity.class);
-                    intent.putExtra("Toast", getString(R.string.try_again));
-                    startActivity(intent);
-                    break;
-                }
                 case "manual": {
-                    Intent intent = new Intent(act, MainActivity.class);
-                    intent.putExtra("Toast", getString(R.string.men));
+                    showProgress(false);
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", getString(R.string.maybe_bdi));
+                    intent.putExtra("text2", "דרושה בדיקה ידנית");
+                    intent.putExtra("icon", R.drawable.icon_mark);
                     startActivity(intent);
                     break;
                 }
@@ -271,27 +270,40 @@ public class PDIActivity extends AppCompatActivity implements DatePickerFragment
                     showProgress(false);
                     mtz1.setError(getString(R.string.id));
                     break;
-                case "black_list":
+                case "black_list": {
                     showProgress(false);
-                    Toast.makeText(act, getString(R.string.black), Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", "לקוח זה אינו יכול לקבל הלוואה");
+                    intent.putExtra("text2", getString(R.string.black));
+                    intent.putExtra("icon", R.drawable.icon_bad);
+                    startActivity(intent);
                     break;
+                }
                 case "": {
+                    showProgress(false);
                     Intent intent = new Intent(act, LoginActivity.class);
                     intent.putExtra("Toast", getString(R.string.sign));
                     startActivity(intent);
                     break;
                 }
                 case "test_ok": {
-                    Intent intent = new Intent(act, MainActivity.class);
-                    intent.putExtra("Toast", getString(R.string.successful_bdi));
+                    showProgress(false);
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", getString(R.string.successful_bdi));
+                    intent.putExtra("text2", "");
+                    intent.putExtra("icon", R.drawable.icon_good);
                     startActivity(intent);
                     break;
                 }
-                default:
+                default:{
                     showProgress(false);
-                    Log.d("BDI",response);
-                    Toast.makeText(act, getString(R.string.exc), Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", "בעית חיבור");
+                    intent.putExtra("text2", "בדוק את חיבור האינטרנט שלך");
+                    intent.putExtra("icon", R.drawable.icon_network);
+                    startActivity(intent);
                     break;
+                }
             }
         }
 

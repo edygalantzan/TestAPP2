@@ -14,6 +14,7 @@
     <string name="camera_explenision">אפליקציה זאת דורשת הרשאת מצלמה</string>
     <string name="camera_ok">נסה שוב</string>
     <string name="camera_sent">המסמך נשלח בהצלחה</string>
+    <string name="camera_error">משהו השתבש, אנא נסה שוב מאוחר יותר</string>
 
     <!-- BDI -->
     <string name="prompt_tz">הכנס מספר תעודת זהות</string>
@@ -36,6 +37,7 @@
     <string name="men">צור קשר עם קידום בשביל בדיקה ידנית</string>
 
     <string name="successful_bdi">לקוח זה יכול לקבל הלוואה</string>
+    <string name="maybe_bdi">לקוח זה אולי יכול לקבל הלוואה</string>
     <string name="camera_cansle">Cancled</string>
     <string name="login_title">התחבר</string>
     <string name="wait">אנא המתן...</string>

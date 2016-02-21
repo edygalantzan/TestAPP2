@@ -20,29 +20,35 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.http.client.*;
+import org.apache.http.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
 public class CameaActivity extends AppCompatActivity implements CameraPermissionDialog.CameraPermissionDialogListener {
 
     private PhotoSendTask sendTask;
-    private static final String TAG = "Camera";
     private static final int CAPTURE_IMAGE_ACTIVITY_REQ = 0;
     private static final int MY_PERMISSIONS_CAMERA = 0;
     private Uri fileUri = null;
@@ -68,7 +74,6 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
      * <p/>
      * If the app does not has permission then the user will be prompted to grant permissions
      *
-     * @param activity
      */
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -128,17 +133,14 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
 
     private void sendPhoto(Uri photoUri) {
         try {
-            File imageFile = new File(photoUri.getPath());
-            if (imageFile.exists()) {
-                showProgress(true);
-                SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-                String mEmail = settings.getString("Username", "");
-                String mPassword = settings.getString("Password", "");
-                sendTask = new PhotoSendTask("http://app.carloan.co.il/dynamic/android/upload_img?username="+mEmail+"&password="+mPassword, "test", "descrption", new FileInputStream(imageFile), mEmail, mPassword);
-                sendTask.execute();
-            }
+            showProgress(true);
+            SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+            String mEmail = settings.getString("Username", "");
+            String mPassword = settings.getString("Password", "");
+            sendTask = new PhotoSendTask("http://app.carloan.co.il:80/dynamic/android/upload_img",photoUri.getPath(),mEmail,mPassword,this);
+            sendTask.execute();
         } catch (Exception e) {
-            Log.e("CameraWEB", e.getMessage());
+            //Log.e("CameraWEB", e.getMessage());
         }
     }
 
@@ -240,125 +242,109 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
         intent.putExtra("Toast", getString(R.string.camera_cansle));
         startActivity(intent);
     }
-
+    public void error(String s){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("Toast", s);
+        startActivity(intent);
+    }
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class PhotoSendTask extends AsyncTask<Void, Void, Boolean> {
-
-        URL connectURL;
-        String Title;
+    public class PhotoSendTask extends AsyncTask<Void, Void, String> {
+        String imgPath;
+        Bitmap bitmap;
+        String encodedString;
+        String url;
+        String fileName;
         String username;
         String password;
-        String Description;
-        byte[] dataToServer;
-        FileInputStream fileInputStream = null;
-
-        PhotoSendTask(String urlString, String vTitle, String vDesc, FileInputStream fStream, String username1, String password1) {
-            username = username1;
-            password = password1;
-            fileInputStream = fStream;
-            try {
-                connectURL = new URL(urlString);
-                Title = vTitle;
-                Description = vDesc;
-            } catch (Exception ex) {
-                Log.i("HttpFileUpload", "URL Malformatted");
-            }
+        AppCompatActivity act;
+        PhotoSendTask(String urlString,String img,String username1,String password1,AppCompatActivity activity) {
+            imgPath=img;
+            url=urlString;
+            username=username1;
+            password=password1;
+            act=activity;
         }
 
         @Override
-        protected Boolean doInBackground(Void... param) {
-            String lineEnd = "\r\n";
-            String twoHyphens = "--";
-            String boundary = "*****";
-            String Tag = "CameraNET";
+        protected String doInBackground(Void... param) {
+            // Get the Image's file name
+            String fileNameSegments[] = imgPath.split("/");
+            fileName = fileNameSegments[fileNameSegments.length - 1];
+
+            BitmapFactory.Options options =new BitmapFactory.Options();
+            options.inSampleSize = 3;
+            bitmap = BitmapFactory.decodeFile(imgPath,
+                    options);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            // Must compress the Image to reduce image size to make upload easy
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+            byte[] byte_arr = stream.toByteArray();
+            // Encode Image to String
+            encodedString = Base64.encodeToString(byte_arr, 0);
+
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost(url);
+            ResponseHandler<String> handler = new BasicResponseHandler();
             try {
-                Log.d(Tag, "Starting Http File Sending to URL");
-                // Open a HTTP connection to the URL
-                HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
+                // Add your data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                nameValuePairs.add(new BasicNameValuePair("username", username));
+                nameValuePairs.add(new BasicNameValuePair("password", password));
+                nameValuePairs.add(new BasicNameValuePair("data", encodedString));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-                // Allow Inputs
-                conn.setDoInput(true);
-
-                // Allow Outputs
-                conn.setDoOutput(true);
-
-                // Don't use a cached copy.
-                conn.setUseCaches(false);
-
-                // Use a post method.
-                conn.setRequestMethod("POST");
-
-                conn.setRequestProperty("Connection", "Keep-Alive");
-
-                conn.setRequestProperty("Content-Type", "multipart/form-data;");
-
-                DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-                dos.writeBytes(twoHyphens + boundary + lineEnd);
-                dos.writeBytes("Content-Disposition: form-data; name=\"title\"" + lineEnd);
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(Title);
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                dos.writeBytes("Content-Disposition: form-data; name=\"description\"" + lineEnd);
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(Description);
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + username.replace("@","_")+"_"+System.currentTimeMillis() / 1000 + ".JPEG\"" + lineEnd);
-                dos.writeBytes(lineEnd);
-
-                Log.d(Tag, "Headers are written");
-
-                // create a buffer of maximum size
-                int bytesAvailable = fileInputStream.available();
-
-                int maxBufferSize = 1024;
-                int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                byte[] buffer = new byte[bufferSize];
-
-                // read file and write it into form...
-                int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                while (bytesRead > 0) {
-                    dos.write(buffer, 0, bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                try {
+                    HttpResponse response= httpclient.execute(httppost);
+                    String body = handler.handleResponse(response);
+                    int code = response.getStatusLine().getStatusCode();
+                    //Log.d("Http Post Response", body);
+                    return body;
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
-                dos.writeBytes(lineEnd);
-                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-                // close streams
-                fileInputStream.close();
 
-                dos.flush();
+                // Execute HTTP Post Request
+                // ResponseHandler<String> responseHandler=new BasicResponseHandler();
+                // String responseBody = httpclient.execute(httppost, responseHandler);
 
-                Log.d(Tag, "File Sent, Response: " + String.valueOf(conn.getResponseCode()));
+                // if (Boolean.parseBoolean(responseBody)) {
+                //	dialog.cancel();
+                // }
 
-                // retrieve the response from server
-                InputStream ins = conn.getInputStream();
-                InputStreamReader isr = new InputStreamReader(ins);
-                BufferedReader in = new BufferedReader(isr);
-                String s;
-                while ((s=in.readLine())!=null) {
-                    Log.d(TAG, s);
-                }
-                dos.close();
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                return false;
+
+            } catch (IOException e) {
+                //Log.i("HTTP Failed", e.toString());
             }
-            return true;
+
+            return "error";
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
-            finish();
+        protected void onPostExecute(final String success) {
+            switch (success){
+                case "OK": {
+                    showProgress(false);
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", getString(R.string.camera_sent));
+                    intent.putExtra("text2", "");
+                    intent.putExtra("icon", R.drawable.icon_good);
+                    startActivity(intent);
+                    break;
+                }
+                default:{
+                    showProgress(false);
+                    Intent intent = new Intent(act, MassageActivity.class);
+                    intent.putExtra("text1", getString(R.string.camera_error));
+                    intent.putExtra("text2", "");
+                    intent.putExtra("icon", R.drawable.icon_bad);
+                    startActivity(intent);
+                    break;
+                }
+            }
         }
 
         @Override
@@ -371,5 +357,7 @@ public class CameaActivity extends AppCompatActivity implements CameraPermission
     @Override
     public void onBackPressed() {
         sendTask=null;
+        showProgress(false);
+        finish();
     }
 }

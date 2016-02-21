@@ -138,6 +138,7 @@ public class LoginActivity extends AppCompatActivity{
                     Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                 }
             }else{
+                Picasso.with(this).load("http://app.carloan.co.il/android/login.jpg").into(mBackground);
                 mEmailView.setText(settings.getString("Username", ""));
                 mPasswordView.setText(settings.getString("Password", ""));
                 attemptLogin();
@@ -257,7 +258,7 @@ public class LoginActivity extends AppCompatActivity{
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
+            //Log.d("LOGIN","connecting");
             try {
                 String httpsURL = "https://app.carloan.co.il/login/user/check/?username=" + this.mEmail + "&password=" + this.mPassword;
                 URL url = new URL(httpsURL);
@@ -291,7 +292,7 @@ public class LoginActivity extends AppCompatActivity{
                     return false;
                 }
             } catch (Exception e){
-                //Log.e("EXCEPTION", e.getClass().getName());
+                //Log.e("EXCEPTION", e.getMessage());
                 return false;
             }
             return false;

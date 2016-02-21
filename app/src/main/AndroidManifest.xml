@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="il.co.carloan.kidum">
+    package="il.co.carloan.kidum"
+    android:versionCode="2"
+    android:versionName="1.1.0">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -22,7 +24,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="il.co.carloan.kidum.MainActivity" />
+        </activity>
         <activity android:name=".CameaActivity" />
         <activity android:name=".PDIActivity" />
         <activity android:name=".MassageActivity"></activity>

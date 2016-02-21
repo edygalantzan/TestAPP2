@@ -3,6 +3,7 @@ package il.co.carloan.kidum;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,9 +28,15 @@ public class MassageActivity extends Activity {
         image.setImageDrawable(get(intent.getIntExtra("icon", R.drawable.icon_bad)));
     }
     public void finish(View v){
-        Intent returnIntent = new Intent();
-        setResult(Activity.RESULT_CANCELED, returnIntent);
-        finish();
+        if(getCallingActivity()==null){
+            Intent view = new Intent(this,MainActivity.class);
+            startActivity(view);
+        }else{
+            Intent returnIntent = new Intent();
+            setResult(Activity.RESULT_CANCELED, returnIntent);
+            finish();
+        }
+
     }
     private Drawable get(int i){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
